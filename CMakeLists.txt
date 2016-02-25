@@ -3,5 +3,5 @@ project(untitled1)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-set(SOURCE_FILES osm.cpp osm.h)
+set(SOURCE_FILES osm.cpp osm.h main.cpp)
 add_executable(untitled1 ${SOURCE_FILES})
