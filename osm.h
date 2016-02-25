@@ -1,6 +1,8 @@
 #ifndef _OSM_H
 #define _OSM_H
 
+#include <iostream>
+#include <sys/time.h>
 
 /* calling a system call that does nothing */
 #define OSM_NULLSYSCALL asm volatile( "int $0x80 " : : \

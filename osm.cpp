@@ -2,6 +2,9 @@
 // Created by danielle.kut on 2/25/16.
 //
 
+
+#include "osm.h"
+
 /* Initialization function that the user must call
  * before running any other library function.
  * The function may, for example, allocate memory or
@@ -10,9 +13,7 @@
  */
 int osm_init()
 {
-    cout << "100 in ex1 1";
 
-	int danielIsADogGirl = 10;
 }
 
 
