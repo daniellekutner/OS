@@ -10,7 +10,7 @@
  */
 int osm_init()
 {
-
+	int danielIsADogGirl = 10;
 }
 
 
