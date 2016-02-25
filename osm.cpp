@@ -12,6 +12,7 @@ int osm_init()
 {
     cout << "100 in ex1 1";
 
+	int danielIsADogGirl = 10;
 }
 
 
