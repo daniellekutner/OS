@@ -41,7 +41,8 @@ int osm_init()
     try
     {
         instance.machineName = (char *) malloc(256);
-        int hostnameVal = gethostname(instance.machineName, sizeof(instance.machineName));
+        int hostnameVal = gethostname(instance.machineName,
+                                      sizeof(instance.machineName));
         if (hostnameVal < 0)
         {
             instance.machineName = NULL;
@@ -94,7 +95,8 @@ double osm_operation_time(unsigned int iterations = DEFAULT_ITERATIONS) {
             (void)z;
         }
         while (gettimeofday(&end, NULL) < 0);
-        double operationTime = ((end.tv_sec - start.tv_sec) * TO_MICRO) + (end.tv_usec - start.tv_usec);
+        double operationTime = ((end.tv_sec - start.tv_sec) * TO_MICRO) +
+				(end.tv_usec - start.tv_usec);
         double nanoTime = calculateAvg(operationTime, iterations);
         return nanoTime;
     }
@@ -126,7 +128,8 @@ double osm_function_time(unsigned int iterations)
             emptyFunc();
         }
         while (gettimeofday(&end, NULL) < 0);
-        double operationTime = ((end.tv_sec - start.tv_sec) * TO_MICRO) + (end.tv_usec - start.tv_usec);
+        double operationTime = ((end.tv_sec - start.tv_sec) * TO_MICRO) +
+				(end.tv_usec - start.tv_usec);
         double nanoTime = calculateAvg(operationTime, iterations);
         return nanoTime;
     }
@@ -152,7 +155,8 @@ double osm_syscall_time(unsigned int iterations)
             OSM_NULLSYSCALL;
         }
         while (gettimeofday(&end, NULL) < 0);
-        double operationTime = ((end.tv_sec - start.tv_sec) * TO_MICRO) + (end.tv_usec - start.tv_usec);
+        double operationTime = ((end.tv_sec - start.tv_sec) * TO_MICRO) +
+				(end.tv_usec - start.tv_usec);
         double nanoAvgTime = calculateAvg(operationTime, iterations);
         return nanoAvgTime;
     }
@@ -188,7 +192,8 @@ double osm_disk_time(unsigned int iterations)
             }
         }
         while (gettimeofday(&end, NULL) < 0);
-        double operationTime = ((end.tv_sec - start.tv_sec) * TO_MICRO) + (end.tv_usec - start.tv_usec);
+        double operationTime = ((end.tv_sec - start.tv_sec) * TO_MICRO) +
+				(end.tv_usec - start.tv_usec);
         double nanoAvgTime = calculateAvg(operationTime, iterations);
         return nanoAvgTime;
     }
@@ -204,12 +209,21 @@ timeMeasurmentStructure measureTimes (unsigned int operation_iterations,
                                       unsigned int syscall_iterations,
                                       unsigned int disk_iterations)
 {
-    instance.instructionTimeNanoSecond = osm_operation_time(operation_iterations);
+    instance.instructionTimeNanoSecond =
+			osm_operation_time(operation_iterations);
+
     instance.functionTimeNanoSecond = osm_function_time(function_iterations);
     instance.trapTimeNanoSecond = osm_syscall_time(syscall_iterations);
     instance.diskTimeNanoSecond = osm_disk_time(disk_iterations);
-    instance.functionInstructionRatio = instance.functionTimeNanoSecond / instance.instructionTimeNanoSecond;
-    instance.trapInstructionRatio = instance.trapTimeNanoSecond / instance.instructionTimeNanoSecond;
-    instance.diskInstructionRatio = instance.diskTimeNanoSecond / instance.instructionTimeNanoSecond;
+
+	instance.functionInstructionRatio = instance.functionTimeNanoSecond /
+			instance.instructionTimeNanoSecond;
+
+    instance.trapInstructionRatio = instance.trapTimeNanoSecond /
+			instance.instructionTimeNanoSecond;
+
+    instance.diskInstructionRatio = instance.diskTimeNanoSecond /
+			instance.instructionTimeNanoSecond;
+
     return instance;
 }
