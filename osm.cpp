@@ -8,16 +8,13 @@
 
 using namespace std;
 
-FILE * pFile;
-char *buff;
+FILE*pFile;
 
-
-string fileString = "OS ex1 is soooo cool, we love OS give us a good grade :) ";
 
 double calculateAvg(double value, unsigned int iterations)
 {
     double avg = value / (double)iterations;
-    double nanoTime = avg * DEFAULT_ITERATIONS;
+    double nanoTime = avg * 1000;
     return nanoTime;
 }
 
@@ -41,10 +38,8 @@ int osm_init()
     {
         return FAILED;
     }
-    fprintf(pFile, "%s", fileString);
+    fputs("OS ex1 is soooo cool, we love OS give us a good grade :):):):):) ", pFile);
     fflush(pFile);
-    buff = (char *) malloc(sizeof(fileString.length()));
-
     return SUCCESS;
 }
 
@@ -60,8 +55,9 @@ int osm_finalizer()
     if(pFile != NULL)
     {
         fclose(pFile);
-        free(buff);
+        return SUCCESS;
     }
+    return FAILED;
 }
 
 
@@ -177,12 +173,13 @@ double osm_disk_time(unsigned int iterations)
         for (int i = 0; i < iterations; i++)
         {
             gettimeofday(&start, NULL);
-            fgets(buff, fileString.length(), pFile);
+            fputs("OS ex1", pFile);
             gettimeofday(&end, NULL);
             timersub(&start, &end, &sub);
             timeSum += sub.tv_usec;
         }
         double nanoAvgTime = calculateAvg(timeSum, iterations);
+
         cout << nanoAvgTime << endl; // TODO DEL this and check for more
         return nanoAvgTime;
     }
