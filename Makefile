@@ -1,29 +1,22 @@
-CC=gcc
 
-LIBSRC = osm.cpp
-LIBOBJ=$(LIBSRC:.c=.o)
-CFLAGS = -Wall -g $(INCS)
-TAR=tar
-TARGETS = $(OSMLIB)
+CC = g++
+CFLAGS = -std=c++11 -Wextra -Wall
+TAR = tar
 TARFLAGS = -cvf
 TARNAME = ex1.tar
-TARSRCS = Makefile README
+TARSRCS = osm.cpp Makefile README
 
-all: $(TARGETS) 
+all: osm.o
+	ar rcs libosm.a osm.o
 
-
-$(TARGETS): $(LIBOBJ)
-
-
+osm.o: osm.cpp osm.h
+	$(CC) $(CFLAGS) osm.cpp -c
 
 clean:
-$(RM) $(TARGETS) $(OSMLIB) $(OBJ) $(LIBOBJ) *~ *core
-
-
-depend:
-
-makedepend -- $(CFLAGS) -- $(SRC) $(LIBSRC)
+	-rm osm.o libosm.a
 
 tar:
+	$(TAR) $(TARFLAGS) $(TARNAME) $(TARSRCS)
 
-$(TAR) $(TARFLAGS) $(TARNAME) $(TARSRCS)
+
+.PHONY: clean, all

@@ -1,6 +1,7 @@
-
 yonilipman, danielle.kut
+
 Yonatan Lipman (305629750), Danielle Kutner (204094460)
+
 EX: 1
 
 FILES:
@@ -22,10 +23,7 @@ Q2:
 Here are answers to theoreical questions
 if there were such questions in the exercise.
 
-
 TASK 1:
-
-
 
 dup - duplicates the old pFile disctriptor given and creates a new fd. the fd is dependant on the life of the old fd,
 meaning for any change in one of the fd's affects the other fd (e.g closing one will close the other).
@@ -38,18 +36,7 @@ fstat - returns information about a pFile. first argument is the fd to work on, 
 as a struct of type stat. In our program the mode (st_mode) is a character device and the id (st_rdev) is the return
 value of the makedev function (of class 136, instance 1).
 
-
-
-
 dup returned a value of 3, s.t 3 is the new fd for the pFile opened.
-
-
-
-
-
-
-
-
 
 Run with arg:
 
@@ -77,13 +64,11 @@ WhatIDo: opens a new fd in the directory that was created in the last mkdir call
 new pFile(noted by O_CREAT and O_TRUNC) that we will only write into, and the mode gives everyone read-write permissions.
 the returned fd is 3.
 
-
 fstat
 Params: filedes, buf(pointer to a struct of type stat)
 Returns: 0 if successful, else -1.
 Description: returns information about the pFile represented by the fd.
 WhatIDo: fstat is called successfully on the fd 3, and initializes the buf structs fields as needed.
-
 
 mmap - SHOULD THIS BE FIllED????
 
@@ -94,7 +79,6 @@ Description: writes up to count bytes to the fd from the buf.
 WhatIDo: successfully writes 184 bytes into fd 3, which is a string message to the students and a newline for the name
 of the user login name.
 
-
 close
 Params: filedes
 Returns: 0 if successful, else -1.
@@ -102,7 +86,6 @@ Description: closes the fd and frees the fd number for later use.
 WhatIDo: releases the fd 3 successfully.
 
 mumap - SHOULD THIS BE FIllED????
-
 
 unlink
 Params: pathname
@@ -121,5 +104,3 @@ exit_group
 Params: status
 Returns: void
 Description: terminates the proccess and all threads in it.
-
-
