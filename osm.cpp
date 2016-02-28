@@ -6,6 +6,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include "osm.h"
+#include <math.h>
 
 #define FAILED -1
 #define DEFAULT_ITERATIONS 1000
@@ -96,6 +97,7 @@ double osm_operation_time(unsigned int iterations = DEFAULT_ITERATIONS) {
         while (gettimeofday(&end, NULL) < 0);
         double operationTime = ((end.tv_sec - start.tv_sec) * TO_MICRO) +
 				(end.tv_usec - start.tv_usec);
+        iterations = (unsigned int) ceil(iterations * 3);
         double nanoTime = calculateAvg(operationTime, iterations);
         return nanoTime;
     }
