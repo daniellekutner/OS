@@ -5,7 +5,8 @@
 int main()
 {
     osm_operation_time(1000);
-    osm_function_time(10);
-
+    osm_function_time(1000);
+    osm_syscall_time(1000);
+    osm_disk_time(1000);
     return 0;
 }

@@ -2,23 +2,45 @@
 // Created by danielle.kut on 2/25/16.
 //
 #include "osm.h"
-
 #define FAILED -1
-
 #define DEFAULT_ITERATIONS 1000
-#define CONVERT_TO_NANO(x) (x * 1000) //TODO FIX YONIS MACRO
+#define SUCCESS 0
 
 using namespace std;
+
+FILE*pFile;
+
+
+double calculateAvg(double value, unsigned int iterations)
+{
+    double avg = value / (double)iterations;
+    double nanoTime = avg * 1000;
+    return nanoTime;
+}
+
+void validateIterations(unsigned int &iterations)
+{
+    if (iterations == 0) {
+        iterations = DEFAULT_ITERATIONS;
+    }
+}
 
 /* Initialization function that the user must call
  * before running any other library function.
  * The function may, for example, allocate memory or
  * create/open files.
- * Returns 0 uppon success and -1 on failure
+ * Returns 0 upon success and -1 on failure
  */
 int osm_init()
 {
-
+    pFile = fopen("pFile.txt", "w");
+    if (pFile == NULL)
+    {
+        return FAILED;
+    }
+    fputs("OS ex1 is soooo cool, we love OS give us a good grade :):):):):) ", pFile);
+    fflush(pFile);
+    return SUCCESS;
 }
 
 
@@ -30,7 +52,10 @@ int osm_init()
  */
 int osm_finalizer()
 {
-
+    if(pFile != NULL)
+    {
+        fclose(pFile);
+    }
 }
 
 
@@ -40,20 +65,20 @@ int osm_finalizer()
    */
 double osm_operation_time(unsigned int iterations = DEFAULT_ITERATIONS) {
     try {
-        if (iterations == 0) {
-            iterations = DEFAULT_ITERATIONS;
-        }
+        validateIterations(iterations);
         int x, y, z;
         struct timeval start, end, sub;
-        gettimeofday(&start, NULL);
+        double timeSum = 0;
         for (int i = 0; i < iterations; i++) {
+            gettimeofday(&start, NULL);
             x = 2 + 6;
             y = 10 + 6;
             z = 9 + 8;
+            gettimeofday(&end, NULL);
+            timersub(&start, &end, &sub);
+            timeSum += sub.tv_usec;
         }
-        gettimeofday(&end, NULL);
-        timersub(&start, &end, &sub);
-        double nanoTime = CONVERT_TO_NANO(sub.tv_usec);
+        double nanoTime = calculateAvg(timeSum, iterations);
         cout << nanoTime << endl;
         return nanoTime;
     }
@@ -68,7 +93,7 @@ double osm_operation_time(unsigned int iterations = DEFAULT_ITERATIONS) {
  */
 static void emptyFunc()
 {
-
+    //Stays empty
 }
 
 /* Time measurement function for an empty function call.
@@ -77,19 +102,19 @@ static void emptyFunc()
    */
 double osm_function_time(unsigned int iterations)
 {
+    validateIterations(iterations);
     try {
-        if (iterations == 0) {
-            iterations = DEFAULT_ITERATIONS;
-        }
         struct timeval start, end, sub;
-        gettimeofday(&start, NULL);
+        double timeSum = 0;
         for (int i = 0; i < iterations; i++) {
+            gettimeofday(&start, NULL);
             emptyFunc();
+            gettimeofday(&end, NULL);
+            timersub(&start, &end, &sub);
+            timeSum += sub.tv_usec;
         }
-        gettimeofday(&end, NULL);
-        timersub(&start, &end, &sub);
-        double nanoTime = CONVERT_TO_NANO(sub.tv_usec);
-        cout << nanoTime << endl;
+        double nanoTime = calculateAvg(timeSum, iterations);
+        cout << nanoTime << endl; //TODO DEL
         return nanoTime;
     }
     catch (exception) // TODO check that exception is correct
@@ -106,20 +131,20 @@ double osm_function_time(unsigned int iterations)
 double osm_syscall_time(unsigned int iterations)
 {
     try {
-        if (iterations == 0) {
-            iterations = DEFAULT_ITERATIONS;
-        }
+        validateIterations(iterations);
         struct timeval start, end, sub;
-        gettimeofday(&start, NULL);
+        double timeSum = 0;
         for (int i = 0; i < iterations; i++)
         {
-            int returnVal = OSM_NULLSYSCALL;
+            gettimeofday(&start, NULL);
+            OSM_NULLSYSCALL;
+            gettimeofday(&end, NULL);
+            timersub(&start, &end, &sub);
+            timeSum += sub.tv_usec;
         }
-        gettimeofday(&end, NULL);
-        timersub(&start, &end, &sub);
-        double nanoTime = CONVERT_TO_NANO(sub.tv_usec);
-        cout << nanoTime << endl;
-        return nanoTime;
+        double nanoAvgTime = calculateAvg(timeSum, iterations);
+        cout << nanoAvgTime << endl;
+        return nanoAvgTime;
     }
     catch (exception) // TODO check that exception is correct
     {
@@ -135,5 +160,34 @@ double osm_syscall_time(unsigned int iterations)
 double osm_disk_time(unsigned int iterations)
 {
 
-}
+    if(pFile == NULL)
+    {
+        return FAILED;
+    }
+    try {
+        validateIterations(iterations);
+        double timeSum = 0;
+        struct timeval start, end, sub;
+        for (int i = 0; i < iterations; i++)
+        {
+            gettimeofday(&start, NULL);
+            fputs("OS ex1", pFile);
+            gettimeofday(&end, NULL);
+            timersub(&start, &end, &sub);
+            timeSum += sub.tv_usec;
+        }
+        double nanoAvgTime = calculateAvg(timeSum, iterations);
 
+        cout << nanoAvgTime << endl; // TODO DEL this and check for more
+        fclose(pFile);
+        return nanoAvgTime;
+    }
+    catch (exception) // TODO check that exception is correct
+    {
+        if (pFile != NULL)
+        {
+            fclose(pFile);
+        }
+        return FAILED;
+    }
+}
