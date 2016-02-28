@@ -95,7 +95,7 @@ double osm_operation_time(unsigned int iterations = DEFAULT_ITERATIONS) {
     try {
         validateIterations(iterations);
         int x, y, z;
-        struct timeval start, end, sub;
+        struct timeval start, end;
         while (gettimeofday(&start, NULL) < 0 );
         for (int i = 0; i < iterations; i++) {
             x = 2 + 6;
@@ -103,8 +103,7 @@ double osm_operation_time(unsigned int iterations = DEFAULT_ITERATIONS) {
             z = 9 + 8;
         }
         while (gettimeofday(&end, NULL) < 0);
-        timersub(&start, &end, &sub);
-        double operationTime = (sub.tv_sec * TO_MICRO) + sub.tv_usec;
+        double operationTime = ((end.tv_sec - start.tv_sec) * TO_MICRO) + (end.tv_usec - start.tv_usec);
         double nanoTime = calculateAvg(operationTime, iterations);
         cout << nanoTime << endl;
         return nanoTime;
@@ -131,14 +130,13 @@ double osm_function_time(unsigned int iterations)
 {
     validateIterations(iterations);
     try {
-        struct timeval start, end, sub;
+        struct timeval start, end;
         while (gettimeofday(&start, NULL) < 0);
         for (int i = 0; i < iterations; i++) {
             emptyFunc();
         }
         while (gettimeofday(&end, NULL) < 0);
-        timersub(&start, &end, &sub);
-        double operationTime = (sub.tv_sec * TO_MICRO) + sub.tv_usec;
+        double operationTime = ((end.tv_sec - start.tv_sec) * TO_MICRO) + (end.tv_usec - start.tv_usec);
         double nanoTime = calculateAvg(operationTime, iterations);
         cout << nanoTime << endl; //TODO DEL
         return nanoTime;
@@ -185,7 +183,7 @@ double osm_disk_time(unsigned int iterations)
 {
     try {
         validateIterations(iterations);
-        struct timeval start, end, sub;
+        struct timeval start, end;
         while (gettimeofday(&start, NULL) < 0);
         for (int i = 0; i < iterations; i++)
         {
@@ -193,8 +191,7 @@ double osm_disk_time(unsigned int iterations)
             close(fd);
         }
         while (gettimeofday(&end, NULL) < 0);
-        timersub(&start, &end, &sub);
-        double operationTime = (sub.tv_sec * TO_MICRO) + sub.tv_usec;
+        double operationTime = ((end.tv_sec - start.tv_sec) * TO_MICRO) + (end.tv_usec - start.tv_usec);
         double nanoAvgTime = calculateAvg(operationTime, iterations);
         cout << nanoAvgTime << endl; // TODO DEL this and check for more
         return nanoAvgTime;
