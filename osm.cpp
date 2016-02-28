@@ -10,20 +10,23 @@
 #define DEFAULT_ITERATIONS 1000
 #define SUCCESS 0
 
+#define TO_MICRO 1000000
 using namespace std;
 
-static double checkLoopTime(unsigned int iterations)
-{
-    struct timeval start, end, sub;
-    while (gettimeofday(&start, NULL) < 0 );
-    for (int i = 0; i < iterations; i++)
-    {
-        // empty loop
-    }
-    while (gettimeofday(&end, NULL) < 0);
-    timersub(&start, &end, &sub);
-    return sub.tv_usec;
-}
+timeMeasurmentStructure instance;
+
+//static double checkLoopTime(unsigned int iterations)
+//{
+//    struct timeval start, end, sub;
+//    while (gettimeofday(&start, NULL) < 0 );
+//    for (int i = 0; i < iterations; i++)
+//    {
+//        // empty loop
+//    }
+//    while (gettimeofday(&end, NULL) < 0);
+//    timersub(&start, &end, &sub);
+//    return sub.tv_usec;
+//}
 
 double calculateAvg(double value, unsigned int iterations)
 {
@@ -47,6 +50,20 @@ void validateIterations(unsigned int &iterations)
  */
 int osm_init()
 {
+    try
+    {
+        instance.machineName = (char *) malloc(128);
+        int hostnameVal = gethostname(instance.machineName, sizeof(instance.machineName));
+        if (hostnameVal < 0)
+        {
+            instance.machineName = NULL;
+        }
+        return SUCCESS;
+    }
+    catch(exception)
+    {
+        return FAILED;
+    }
 
 }
 
@@ -59,7 +76,14 @@ int osm_init()
  */
 int osm_finalizer()
 {
-
+    try{
+        free(instance.machineName);
+        return SUCCESS;
+    }
+    catch (exception)
+    {
+        return FAILED;
+    }
 }
 
 
@@ -70,7 +94,6 @@ int osm_finalizer()
 double osm_operation_time(unsigned int iterations = DEFAULT_ITERATIONS) {
     try {
         validateIterations(iterations);
-        double emptyLoopTime = checkLoopTime(iterations);
         int x, y, z;
         struct timeval start, end, sub;
         while (gettimeofday(&start, NULL) < 0 );
@@ -81,7 +104,7 @@ double osm_operation_time(unsigned int iterations = DEFAULT_ITERATIONS) {
         }
         while (gettimeofday(&end, NULL) < 0);
         timersub(&start, &end, &sub);
-        double operationTime = sub.tv_usec - emptyLoopTime;
+        double operationTime = (sub.tv_sec * TO_MICRO) + sub.tv_usec;
         double nanoTime = calculateAvg(operationTime, iterations);
         cout << nanoTime << endl;
         return nanoTime;
@@ -107,7 +130,6 @@ static void emptyFunc()
 double osm_function_time(unsigned int iterations)
 {
     validateIterations(iterations);
-    double emptyLoopTime = checkLoopTime(iterations);
     try {
         struct timeval start, end, sub;
         while (gettimeofday(&start, NULL) < 0);
@@ -116,7 +138,7 @@ double osm_function_time(unsigned int iterations)
         }
         while (gettimeofday(&end, NULL) < 0);
         timersub(&start, &end, &sub);
-        double operationTime = sub.tv_usec - emptyLoopTime;
+        double operationTime = (sub.tv_sec * TO_MICRO) + sub.tv_usec;
         double nanoTime = calculateAvg(operationTime, iterations);
         cout << nanoTime << endl; //TODO DEL
         return nanoTime;
@@ -136,17 +158,14 @@ double osm_syscall_time(unsigned int iterations)
 {
     try {
         validateIterations(iterations);
-        double emptyLoopTime = checkLoopTime(iterations);
-        struct timeval start, end, sub;
+        struct timeval start, end;
         while (gettimeofday(&start, NULL) < 0);
         for (int i = 0; i < iterations; i++)
         {
             OSM_NULLSYSCALL;
         }
         while (gettimeofday(&end, NULL) < 0);
-        timersub(&start, &end, &sub);
-        cout << sub.tv_usec << "\n" << emptyLoopTime << endl;
-        double operationTime = sub.tv_usec - emptyLoopTime;
+        double operationTime = ((end.tv_sec - start.tv_sec) * TO_MICRO) + (end.tv_usec - start.tv_usec);
         double nanoAvgTime = calculateAvg(operationTime, iterations);
         cout << nanoAvgTime << endl; // TODO DEL this and check for more
         return nanoAvgTime;
@@ -166,7 +185,6 @@ double osm_disk_time(unsigned int iterations)
 {
     try {
         validateIterations(iterations);
-        double emptyLoopTime = checkLoopTime(iterations);
         struct timeval start, end, sub;
         while (gettimeofday(&start, NULL) < 0);
         for (int i = 0; i < iterations; i++)
@@ -176,8 +194,7 @@ double osm_disk_time(unsigned int iterations)
         }
         while (gettimeofday(&end, NULL) < 0);
         timersub(&start, &end, &sub);
-        cout << sub.tv_usec << "\n" << emptyLoopTime << endl;
-        double operationTime = sub.tv_usec - emptyLoopTime;
+        double operationTime = (sub.tv_sec * TO_MICRO) + sub.tv_usec;
         double nanoAvgTime = calculateAvg(operationTime, iterations);
         cout << nanoAvgTime << endl; // TODO DEL this and check for more
         return nanoAvgTime;
@@ -189,12 +206,16 @@ double osm_disk_time(unsigned int iterations)
 
 }
 
-
-
 timeMeasurmentStructure measureTimes (unsigned int operation_iterations,
                                       unsigned int function_iterations,
                                       unsigned int syscall_iterations,
                                       unsigned int disk_iterations)
 {
-
+    instance.instructionTimeNanoSecond = osm_operation_time(operation_iterations);
+    instance.functionTimeNanoSecond = osm_function_time(function_iterations);
+    instance.trapTimeNanoSecond = osm_syscall_time(syscall_iterations);
+    instance.diskTimeNanoSecond = osm_disk_time(disk_iterations);
+    instance.functionInstructionRatio = instance.functionTimeNanoSecond / instance.instructionTimeNanoSecond;
+    instance.trapInstructionRatio = instance.trapTimeNanoSecond / instance.instructionTimeNanoSecond;
+    instance.diskInstructionRatio = instance.diskTimeNanoSecond / instance.instructionTimeNanoSecond;
 }
