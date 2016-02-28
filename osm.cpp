@@ -1,6 +1,10 @@
 //
 // Created by danielle.kut on 2/25/16.
 //
+#include <fcntl.h>
+#include <iostream>
+#include <sys/time.h>
+#include <unistd.h>
 #include "osm.h"
 #define FAILED -1
 #define DEFAULT_ITERATIONS 1000
@@ -8,11 +12,18 @@
 
 using namespace std;
 
-FILE * pFile;
-char *buff;
-
-
-string fileString = "OS ex1 is soooo cool, we love OS give us a good grade :) ";
+static double checkLoopTime(unsigned int iterations)
+{
+    struct timeval start, end, sub;
+    while (gettimeofday(&start, NULL) < 0 );
+    for (int i = 0; i < iterations; i++)
+    {
+        // empty loop
+    }
+    while (gettimeofday(&end, NULL) < 0);
+    timersub(&start, &end, &sub);
+    return sub.tv_usec;
+}
 
 double calculateAvg(double value, unsigned int iterations)
 {
@@ -36,16 +47,7 @@ void validateIterations(unsigned int &iterations)
  */
 int osm_init()
 {
-    pFile = fopen("pFile.txt", "w");
-    if (pFile == NULL)
-    {
-        return FAILED;
-    }
-    fprintf(pFile, "%s", fileString);
-    fflush(pFile);
-    buff = (char *) malloc(sizeof(fileString.length()));
 
-    return SUCCESS;
 }
 
 
@@ -57,11 +59,7 @@ int osm_init()
  */
 int osm_finalizer()
 {
-    if(pFile != NULL)
-    {
-        fclose(pFile);
-        free(buff);
-    }
+
 }
 
 
@@ -72,19 +70,19 @@ int osm_finalizer()
 double osm_operation_time(unsigned int iterations = DEFAULT_ITERATIONS) {
     try {
         validateIterations(iterations);
+        double emptyLoopTime = checkLoopTime(iterations);
         int x, y, z;
         struct timeval start, end, sub;
-        double timeSum = 0;
+        while (gettimeofday(&start, NULL) < 0 );
         for (int i = 0; i < iterations; i++) {
-            gettimeofday(&start, NULL);
             x = 2 + 6;
             y = 10 + 6;
             z = 9 + 8;
-            gettimeofday(&end, NULL);
-            timersub(&start, &end, &sub);
-            timeSum += sub.tv_usec;
         }
-        double nanoTime = calculateAvg(timeSum, iterations);
+        while (gettimeofday(&end, NULL) < 0);
+        timersub(&start, &end, &sub);
+        double operationTime = sub.tv_usec - emptyLoopTime;
+        double nanoTime = calculateAvg(operationTime, iterations);
         cout << nanoTime << endl;
         return nanoTime;
     }
@@ -109,17 +107,17 @@ static void emptyFunc()
 double osm_function_time(unsigned int iterations)
 {
     validateIterations(iterations);
+    double emptyLoopTime = checkLoopTime(iterations);
     try {
         struct timeval start, end, sub;
-        double timeSum = 0;
+        while (gettimeofday(&start, NULL) < 0);
         for (int i = 0; i < iterations; i++) {
-            gettimeofday(&start, NULL);
             emptyFunc();
-            gettimeofday(&end, NULL);
-            timersub(&start, &end, &sub);
-            timeSum += sub.tv_usec;
         }
-        double nanoTime = calculateAvg(timeSum, iterations);
+        while (gettimeofday(&end, NULL) < 0);
+        timersub(&start, &end, &sub);
+        double operationTime = sub.tv_usec - emptyLoopTime;
+        double nanoTime = calculateAvg(operationTime, iterations);
         cout << nanoTime << endl; //TODO DEL
         return nanoTime;
     }
@@ -138,18 +136,19 @@ double osm_syscall_time(unsigned int iterations)
 {
     try {
         validateIterations(iterations);
+        double emptyLoopTime = checkLoopTime(iterations);
         struct timeval start, end, sub;
-        double timeSum = 0;
+        while (gettimeofday(&start, NULL) < 0);
         for (int i = 0; i < iterations; i++)
         {
-            gettimeofday(&start, NULL);
             OSM_NULLSYSCALL;
-            gettimeofday(&end, NULL);
-            timersub(&start, &end, &sub);
-            timeSum += sub.tv_usec;
         }
-        double nanoAvgTime = calculateAvg(timeSum, iterations);
-        cout << nanoAvgTime << endl;
+        while (gettimeofday(&end, NULL) < 0);
+        timersub(&start, &end, &sub);
+        cout << sub.tv_usec << "\n" << emptyLoopTime << endl;
+        double operationTime = sub.tv_usec - emptyLoopTime;
+        double nanoAvgTime = calculateAvg(operationTime, iterations);
+        cout << nanoAvgTime << endl; // TODO DEL this and check for more
         return nanoAvgTime;
     }
     catch (exception) // TODO check that exception is correct
@@ -165,33 +164,37 @@ double osm_syscall_time(unsigned int iterations)
    */
 double osm_disk_time(unsigned int iterations)
 {
-
-    if(pFile == NULL)
-    {
-        return FAILED;
-    }
     try {
         validateIterations(iterations);
-        double timeSum = 0;
+        double emptyLoopTime = checkLoopTime(iterations);
         struct timeval start, end, sub;
+        while (gettimeofday(&start, NULL) < 0);
         for (int i = 0; i < iterations; i++)
         {
-            gettimeofday(&start, NULL);
-            fgets(buff, fileString.length(), pFile);
-            gettimeofday(&end, NULL);
-            timersub(&start, &end, &sub);
-            timeSum += sub.tv_usec;
+            int fd = openat(AT_FDCWD, "file.txt", O_DIRECT);
+            close(fd);
         }
-        double nanoAvgTime = calculateAvg(timeSum, iterations);
+        while (gettimeofday(&end, NULL) < 0);
+        timersub(&start, &end, &sub);
+        cout << sub.tv_usec << "\n" << emptyLoopTime << endl;
+        double operationTime = sub.tv_usec - emptyLoopTime;
+        double nanoAvgTime = calculateAvg(operationTime, iterations);
         cout << nanoAvgTime << endl; // TODO DEL this and check for more
         return nanoAvgTime;
     }
     catch (exception) // TODO check that exception is correct
     {
-        if (pFile != NULL)
-        {
-            fclose(pFile);
-        }
         return FAILED;
     }
+
+}
+
+
+
+timeMeasurmentStructure measureTimes (unsigned int operation_iterations,
+                                      unsigned int function_iterations,
+                                      unsigned int syscall_iterations,
+                                      unsigned int disk_iterations)
+{
+
 }
