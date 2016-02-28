@@ -1,12 +1,10 @@
 yonilipman, danielle.kut
-
-Yonatan Lipman (305629750), Danielle Kutner (204094460)
-
+Yonatan Lipman 305629750, Danielle Kutner 204094460
 EX: 1
 
 FILES:
-README - this file
-osm.cpp - implementation of the library that is to be made with the makefile
+README -- this file
+osm.cpp -- implementation of the library that is to be made with the makefile
 
 REMARKS:
 None.
@@ -108,6 +106,3 @@ of the loop as in style of loop unrolling.
 All the other functions work in a similar manner with the exception of the
 disk operation, which opens a newly created file and closes it in
 each iteration.
-
-
-

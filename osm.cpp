@@ -12,9 +12,9 @@
 #define TO_NANO 1000
 #define SUCCESS 0
 #define TO_MICRO 1000000
+#define DEFAULT_BYTES 256
 
 using namespace std;
-
 timeMeasurmentStructure instance;
 
 double calculateAvg(double value, unsigned int iterations)
@@ -40,7 +40,7 @@ int osm_init()
 {
     try
     {
-        instance.machineName = (char *) malloc(256);
+        instance.machineName = (char *) malloc(DEFAULT_BYTES);
         int hostnameVal = gethostname(instance.machineName,
                                       sizeof(instance.machineName));
         if (hostnameVal < 0)
@@ -53,7 +53,6 @@ int osm_init()
     {
         return FAILED;
     }
-
 }
 
 
@@ -139,7 +138,6 @@ double osm_function_time(unsigned int iterations)
     }
 }
 
-
 /* Time measurement function for an empty trap into the operating system.
    returns time in nano-seconds upon success,
    and -1 upon failure.
@@ -164,7 +162,6 @@ double osm_syscall_time(unsigned int iterations)
     {
         return FAILED;
     }
-
 }
 
 /* Time measurement function for accessing the disk.
@@ -201,7 +198,6 @@ double osm_disk_time(unsigned int iterations)
     {
         return FAILED;
     }
-
 }
 
 timeMeasurmentStructure measureTimes (unsigned int operation_iterations,
