@@ -1,20 +1,37 @@
 //
 // Created by danielle.kut on 2/25/16.
 //
+#include <fcntl.h>
+#include <iostream>
+#include <sys/time.h>
+#include <unistd.h>
 #include "osm.h"
 #define FAILED -1
 #define DEFAULT_ITERATIONS 1000
 #define SUCCESS 0
 
+#define TO_MICRO 1000000
 using namespace std;
 
-FILE*pFile;
+timeMeasurmentStructure instance;
 
+//static double checkLoopTime(unsigned int iterations)
+//{
+//    struct timeval start, end, sub;
+//    while (gettimeofday(&start, NULL) < 0 );
+//    for (int i = 0; i < iterations; i++)
+//    {
+//        // empty loop
+//    }
+//    while (gettimeofday(&end, NULL) < 0);
+//    timersub(&start, &end, &sub);
+//    return sub.tv_usec;
+//}
 
 double calculateAvg(double value, unsigned int iterations)
 {
     double avg = value / (double)iterations;
-    double nanoTime = avg * 1000;
+    double nanoTime = avg * DEFAULT_ITERATIONS;
     return nanoTime;
 }
 
@@ -33,14 +50,21 @@ void validateIterations(unsigned int &iterations)
  */
 int osm_init()
 {
-    pFile = fopen("pFile.txt", "w");
-    if (pFile == NULL)
+    try
+    {
+        instance.machineName = (char *) malloc(128);
+        int hostnameVal = gethostname(instance.machineName, sizeof(instance.machineName));
+        if (hostnameVal < 0)
+        {
+            instance.machineName = NULL;
+        }
+        return SUCCESS;
+    }
+    catch(exception)
     {
         return FAILED;
     }
-    fputs("OS ex1 is soooo cool, we love OS give us a good grade :):):):):) ", pFile);
-    fflush(pFile);
-    return SUCCESS;
+
 }
 
 
@@ -52,12 +76,14 @@ int osm_init()
  */
 int osm_finalizer()
 {
-    if(pFile != NULL)
-    {
-        fclose(pFile);
+    try{
+        free(instance.machineName);
         return SUCCESS;
     }
-    return FAILED;
+    catch (exception)
+    {
+        return FAILED;
+    }
 }
 
 
@@ -70,17 +96,16 @@ double osm_operation_time(unsigned int iterations = DEFAULT_ITERATIONS) {
         validateIterations(iterations);
         int x, y, z;
         struct timeval start, end, sub;
-        double timeSum = 0;
+        while (gettimeofday(&start, NULL) < 0 );
         for (int i = 0; i < iterations; i++) {
-            gettimeofday(&start, NULL);
             x = 2 + 6;
             y = 10 + 6;
             z = 9 + 8;
-            gettimeofday(&end, NULL);
-            timersub(&start, &end, &sub);
-            timeSum += sub.tv_usec;
         }
-        double nanoTime = calculateAvg(timeSum, iterations);
+        while (gettimeofday(&end, NULL) < 0);
+        timersub(&start, &end, &sub);
+        double operationTime = (sub.tv_sec * TO_MICRO) + sub.tv_usec;
+        double nanoTime = calculateAvg(operationTime, iterations);
         cout << nanoTime << endl;
         return nanoTime;
     }
@@ -107,15 +132,14 @@ double osm_function_time(unsigned int iterations)
     validateIterations(iterations);
     try {
         struct timeval start, end, sub;
-        double timeSum = 0;
+        while (gettimeofday(&start, NULL) < 0);
         for (int i = 0; i < iterations; i++) {
-            gettimeofday(&start, NULL);
             emptyFunc();
-            gettimeofday(&end, NULL);
-            timersub(&start, &end, &sub);
-            timeSum += sub.tv_usec;
         }
-        double nanoTime = calculateAvg(timeSum, iterations);
+        while (gettimeofday(&end, NULL) < 0);
+        timersub(&start, &end, &sub);
+        double operationTime = (sub.tv_sec * TO_MICRO) + sub.tv_usec;
+        double nanoTime = calculateAvg(operationTime, iterations);
         cout << nanoTime << endl; //TODO DEL
         return nanoTime;
     }
@@ -134,18 +158,16 @@ double osm_syscall_time(unsigned int iterations)
 {
     try {
         validateIterations(iterations);
-        struct timeval start, end, sub;
-        double timeSum = 0;
+        struct timeval start, end;
+        while (gettimeofday(&start, NULL) < 0);
         for (int i = 0; i < iterations; i++)
         {
-            gettimeofday(&start, NULL);
             OSM_NULLSYSCALL;
-            gettimeofday(&end, NULL);
-            timersub(&start, &end, &sub);
-            timeSum += sub.tv_usec;
         }
-        double nanoAvgTime = calculateAvg(timeSum, iterations);
-        cout << nanoAvgTime << endl;
+        while (gettimeofday(&end, NULL) < 0);
+        double operationTime = ((end.tv_sec - start.tv_sec) * TO_MICRO) + (end.tv_usec - start.tv_usec);
+        double nanoAvgTime = calculateAvg(operationTime, iterations);
+        cout << nanoAvgTime << endl; // TODO DEL this and check for more
         return nanoAvgTime;
     }
     catch (exception) // TODO check that exception is correct
@@ -161,34 +183,39 @@ double osm_syscall_time(unsigned int iterations)
    */
 double osm_disk_time(unsigned int iterations)
 {
-
-    if(pFile == NULL)
-    {
-        return FAILED;
-    }
     try {
         validateIterations(iterations);
-        double timeSum = 0;
         struct timeval start, end, sub;
+        while (gettimeofday(&start, NULL) < 0);
         for (int i = 0; i < iterations; i++)
         {
-            gettimeofday(&start, NULL);
-            fputs("OS ex1", pFile);
-            gettimeofday(&end, NULL);
-            timersub(&start, &end, &sub);
-            timeSum += sub.tv_usec;
+            int fd = openat(AT_FDCWD, "file.txt", O_DIRECT);
+            close(fd);
         }
-        double nanoAvgTime = calculateAvg(timeSum, iterations);
-
+        while (gettimeofday(&end, NULL) < 0);
+        timersub(&start, &end, &sub);
+        double operationTime = (sub.tv_sec * TO_MICRO) + sub.tv_usec;
+        double nanoAvgTime = calculateAvg(operationTime, iterations);
         cout << nanoAvgTime << endl; // TODO DEL this and check for more
         return nanoAvgTime;
     }
     catch (exception) // TODO check that exception is correct
     {
-        if (pFile != NULL)
-        {
-            fclose(pFile);
-        }
         return FAILED;
     }
+
+}
+
+timeMeasurmentStructure measureTimes (unsigned int operation_iterations,
+                                      unsigned int function_iterations,
+                                      unsigned int syscall_iterations,
+                                      unsigned int disk_iterations)
+{
+    instance.instructionTimeNanoSecond = osm_operation_time(operation_iterations);
+    instance.functionTimeNanoSecond = osm_function_time(function_iterations);
+    instance.trapTimeNanoSecond = osm_syscall_time(syscall_iterations);
+    instance.diskTimeNanoSecond = osm_disk_time(disk_iterations);
+    instance.functionInstructionRatio = instance.functionTimeNanoSecond / instance.instructionTimeNanoSecond;
+    instance.trapInstructionRatio = instance.trapTimeNanoSecond / instance.instructionTimeNanoSecond;
+    instance.diskInstructionRatio = instance.diskTimeNanoSecond / instance.instructionTimeNanoSecond;
 }
