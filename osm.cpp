@@ -85,7 +85,7 @@ double osm_operation_time(unsigned int iterations = DEFAULT_ITERATIONS) {
         int x, y, z;
         struct timeval start, end;
         while (gettimeofday(&start, NULL) < 0 );
-        for (unsigned int i= 0; i < iterations; i++) {
+        for (unsigned int i= 0; i < iterations; ++i) {
             x = 2 + 6;
             y = 10 + 6;
             z = 9 + 8;
@@ -123,7 +123,7 @@ double osm_function_time(unsigned int iterations)
     try {
         struct timeval start, end;
         while (gettimeofday(&start, NULL) < 0);
-        for (unsigned int i= 0; i < iterations; i++) {
+        for (unsigned int i= 0; i < iterations; ++i) {
             emptyFunc();
         }
         while (gettimeofday(&end, NULL) < 0);
@@ -148,7 +148,7 @@ double osm_syscall_time(unsigned int iterations)
         validateIterations(iterations);
         struct timeval start, end;
         while (gettimeofday(&start, NULL) < 0);
-        for (unsigned int i= 0; i < iterations; i++)
+        for (unsigned int i= 0; i < iterations; ++i)
         {
             OSM_NULLSYSCALL;
         }

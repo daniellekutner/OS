@@ -1,6 +1,6 @@
 
 CC = g++
-CFLAGS = -std=c++11 -Wextra -Wall
+CFLAGS = -std=c++11 -Wextra -Wall -O0
 TAR = tar
 TARFLAGS = -cvf
 TARNAME = ex1.tar
