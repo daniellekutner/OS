@@ -7,10 +7,18 @@ using namespace std;
 int main()
 {
     osm_init();
-    cout << osm_operation_time(100000)<< endl;
-    cout << osm_function_time(100000) << endl;
-    cout << osm_syscall_time(100000) << endl;
-    cout << osm_disk_time(100000)<< endl;
+    auto blah = measureTimes(100000, 100000, 100000, 100000);
+
+    cout << "Machine Name: " << blah.machineName << endl;
+    cout << "instructionTimeNanoSecond: " << blah.instructionTimeNanoSecond << endl;
+    cout << "functionTimeNanoSecond: " << blah.functionTimeNanoSecond << endl;
+    cout << "trapTimeNanoSecond: " << blah.trapTimeNanoSecond << endl;
+    cout << "diskTimeNanoSecond: " << blah.diskTimeNanoSecond<< endl;
+    cout << "functionInstructionRatio: " << blah.functionInstructionRatio << endl;
+    cout << "trapInstructionRatio: " << blah.trapInstructionRatio << endl;
+    cout << "diskInstructionRatio: " << blah.diskInstructionRatio << endl;
+
     osm_finalizer();
+
     return 0;
 }
