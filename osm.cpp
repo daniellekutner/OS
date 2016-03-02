@@ -16,14 +16,13 @@
 #define SUCCESS 0
 #define TO_MICRO 1000000
 #define DEFAULT_BYTES 256
-
 #define SYSCALL_LOOP_UNROLL 10.0
 #define INSTRUCT_LOOP_UNROLL 6.0
 #define FUNC_LOOP_UNROLL 10.0
 #define DISK_LOOP_UNROLL 3.0
+#define PERMISSIONS 0777
 
 using namespace std;
-
 
 timeMeasurmentStructure instance;
 
@@ -70,7 +69,6 @@ int osm_init()
         return FAILED;
     }
 }
-
 
 /* finalizer function that the user must call
  * after running any other library function.
@@ -218,19 +216,17 @@ double osm_disk_time(unsigned int iterations)
         validateIterations(iterations);
         struct timeval start, end;
         while (gettimeofday(&start, NULL) < 0);
-        unsigned int loopIterations =
-				(unsigned int) ceil((double)iterations / DISK_LOOP_UNROLL);
         void*  msg_buffer = aligned_alloc(BLOCK_SIZE, BLOCK_SIZE);
         char *msg = (char *) "yoni";
-        memcpy(msg_buffer, msg, 4);
+        memcpy(msg_buffer, msg, strlen(msg));
         int fd;
         fd = open("/tmp/danielle_kut.txt",
-                  O_DIRECT|O_CREAT|O_TRUNC|O_SYNC|O_WRONLY, 0777);
+                  O_DIRECT|O_CREAT|O_TRUNC|O_SYNC|O_WRONLY, PERMISSIONS);
         if(fd == -1)
         {
             return FAILED;
         }
-        for (unsigned int i= 0; i < loopIterations; ++i)
+        for (unsigned int i= 0; i < iterations; ++i)
         {
             ssize_t writeVal = write(fd, msg_buffer, BLOCK_SIZE);
             if (writeVal == FAILED) {
@@ -247,6 +243,7 @@ double osm_disk_time(unsigned int iterations)
         double operationTime = ((end.tv_sec - start.tv_sec) * TO_MICRO) +
 				(end.tv_usec - start.tv_usec);
         double nanoAvgTime = calculateAvg(operationTime, iterations);
+        free(msg_buffer);
         return nanoAvgTime;
     }
     catch (exception)

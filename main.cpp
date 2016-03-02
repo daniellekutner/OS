@@ -7,7 +7,7 @@ using namespace std;
 int main()
 {
     osm_init();
-    auto blah = measureTimes(10, 10, 10, 10);
+    auto blah = measureTimes(1000, 1000, 1000, 1000);
 
     cout << "Machine Name: " << blah.machineName << endl;
     cout << "instructionTimeNanoSecond: " << blah.instructionTimeNanoSecond << endl;
