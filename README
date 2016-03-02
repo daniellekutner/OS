@@ -1,5 +1,5 @@
-yonilipman,danielle.kut
-Yonatan Lipman 305629750, Danielle Kutner 204094460
+yonilipman, danielle.kut
+Yonatan Lipman (305629750), Danielle Kutner (204094460)
 EX: 1
 
 FILES:
@@ -62,7 +62,8 @@ Params: filedes, pointer to buf, count(amount of bytes to write).
 Returns: num of bytes written if successful, else -1.
 Description: writes up to count bytes to the fd from the buf.
 WhatIDo: successfully writes 184 bytes into fd 3, which is a string message to
-the students and a newline for the name of the user login name.
+the students and a newline for the name of the user login name, then the given
+argument.
 
 
 close

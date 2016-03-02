@@ -20,5 +20,6 @@ int main()
 
     osm_finalizer();
 
+
     return 0;
 }
