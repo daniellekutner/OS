@@ -72,7 +72,6 @@ Returns: 0 if successful, else -1.
 Description: closes the fd and frees the fd number for later use.
 WhatIDo: releases the fd 3 successfully.
 
-
 unlink
 Params: pathname
 Returns: 0 if successful, else -1.

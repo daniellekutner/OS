@@ -7,7 +7,9 @@
 #include <unistd.h>
 #include "osm.h"
 #include <math.h>
+#include <string.h>
 
+#define BLOCK_SIZE 512
 #define FAILED -1
 #define DEFAULT_ITERATIONS 1000
 #define TO_NANO 1000
@@ -56,7 +58,7 @@ int osm_init()
     {
         instance.machineName = (char *) malloc(DEFAULT_BYTES);
         int hostnameVal = gethostname(instance.machineName,
-                                      sizeof(DEFAULT_BYTES));
+                                      sizeof(instance.machineName));
         if (hostnameVal < 0)
         {
             instance.machineName = NULL;
@@ -218,24 +220,28 @@ double osm_disk_time(unsigned int iterations)
         while (gettimeofday(&start, NULL) < 0);
         unsigned int loopIterations =
 				(unsigned int) ceil((double)iterations / DISK_LOOP_UNROLL);
-		char* writeBuf = (char *) "aaa";
+        void*  msg_buffer = aligned_alloc(BLOCK_SIZE, BLOCK_SIZE);
+        char *msg = (char *) "yoni";
+        memcpy(msg_buffer, msg, 4);
+        int fd;
+        fd = open("/tmp/danielle_kut.txt",
+                  O_DIRECT|O_CREAT|O_TRUNC|O_SYNC|O_WRONLY, 0777);
+        if(fd == -1)
+        {
+            return FAILED;
+        }
         for (unsigned int i= 0; i < loopIterations; ++i)
         {
-            int fd;
-            fd = open("/tmp/danielle_kut.txt",
-					  O_CREAT|O_TRUNC|O_SYNC|O_WRONLY, 0777);
-            if(fd == -1)
-            {
+            ssize_t writeVal = write(fd, msg_buffer, BLOCK_SIZE);
+            if (writeVal == FAILED) {
                 return FAILED;
             }
-            ssize_t writeVal = write(fd, writeBuf, 2);
-            int unlinkRetVal = unlink("/tmp/danielle_kut.txt");
-            int closeRetVal = close(fd);
-            if ((closeRetVal == FAILED) | (unlinkRetVal == FAILED) |
-					(writeVal == FAILED))
-            {
-                return FAILED;
-            }
+        }
+        int unlinkRetVal = unlink("/tmp/danielle_kut.txt");
+        int closeRetVal = close(fd);
+        if ((closeRetVal == FAILED) | (unlinkRetVal == FAILED))
+        {
+            return FAILED;
         }
         while (gettimeofday(&end, NULL) < 0);
         double operationTime = ((end.tv_sec - start.tv_sec) * TO_MICRO) +

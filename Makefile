@@ -17,5 +17,4 @@ clean:
 tar:
 	$(TAR) $(TARFLAGS) $(TARNAME) $(TARSRCS)
 
-
-.PHONY: clean, all
+.PHONY: clean, all, tar
