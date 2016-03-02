@@ -99,7 +99,8 @@ double osm_operation_time(unsigned int iterations = DEFAULT_ITERATIONS) {
         int x = 0, y = 0, z = 0;
         struct timeval start, end;
         while (gettimeofday(&start, NULL) < 0 );
-        unsigned int loopIterations = (unsigned int) ceil((double)iterations / INSTRUCT_LOOP_UNROLL);
+        unsigned int loopIterations =
+                (unsigned int) ceil((double)iterations / INSTRUCT_LOOP_UNROLL);
         for (unsigned int i= 0; i < loopIterations; ++i) {
             x = x + 2;
             y = y + 10;
@@ -140,7 +141,8 @@ double osm_function_time(unsigned int iterations)
     try {
         struct timeval start, end;
         while (gettimeofday(&start, NULL) < 0);
-        unsigned int loopIterations = (unsigned int) ceil((double)iterations / FUNC_LOOP_UNROLL);
+        unsigned int loopIterations =
+				(unsigned int) ceil((double)iterations / FUNC_LOOP_UNROLL);
         for (unsigned int i= 0; i < loopIterations; ++i) {
             emptyFunc();
             emptyFunc();
@@ -176,7 +178,8 @@ double osm_syscall_time(unsigned int iterations)
         validateIterations(iterations);
         struct timeval start, end;
         while (gettimeofday(&start, NULL) < 0);
-        unsigned int loopIterations = (unsigned int) ceil((double)iterations / SYSCALL_LOOP_UNROLL);
+        unsigned int loopIterations =
+				(unsigned int) ceil((double)iterations / SYSCALL_LOOP_UNROLL);
         for (unsigned int i = 0; i < loopIterations; ++i)
         {
             OSM_NULLSYSCALL;
@@ -213,18 +216,20 @@ double osm_disk_time(unsigned int iterations)
         validateIterations(iterations);
         struct timeval start, end;
         while (gettimeofday(&start, NULL) < 0);
-        unsigned int loopIterations = (unsigned int) ceil((double)iterations / DISK_LOOP_UNROLL);
+        unsigned int loopIterations =
+				(unsigned int) ceil((double)iterations / DISK_LOOP_UNROLL);
         for (unsigned int i= 0; i < loopIterations; ++i)
         {
             int fd;
-            fd = open("/tmp/danielle_kut.txt", O_DIRECT|O_CREAT|O_TRUNC|O_SYNC, 0777);
+            fd = open("/tmp/danielle_kut.txt",
+					  O_DIRECT|O_CREAT|O_TRUNC|O_SYNC, 0777);
             if(fd == -1)
             {
                 return FAILED;
             }
             int unlinkRetVal = unlink("/tmp/danielle_kut.txt");
             int closeRetVal = close(fd);
-            if (closeRetVal == -1 | unlinkRetVal == -1)
+            if ((closeRetVal == -1) | (unlinkRetVal == -1))
             {
                 return FAILED;
             }
