@@ -56,7 +56,7 @@ int osm_init()
     {
         instance.machineName = (char *) malloc(DEFAULT_BYTES);
         int hostnameVal = gethostname(instance.machineName,
-                                      sizeof(instance.machineName));
+                                      sizeof(DEFAULT_BYTES));
         if (hostnameVal < 0)
         {
             instance.machineName = NULL;
@@ -218,18 +218,21 @@ double osm_disk_time(unsigned int iterations)
         while (gettimeofday(&start, NULL) < 0);
         unsigned int loopIterations =
 				(unsigned int) ceil((double)iterations / DISK_LOOP_UNROLL);
+		char* writeBuf = (char *) "aaa";
         for (unsigned int i= 0; i < loopIterations; ++i)
         {
             int fd;
             fd = open("/tmp/danielle_kut.txt",
-					  O_DIRECT|O_CREAT|O_TRUNC|O_SYNC, 0777);
+					  O_CREAT|O_TRUNC|O_SYNC|O_WRONLY, 0777);
             if(fd == -1)
             {
                 return FAILED;
             }
+            ssize_t writeVal = write(fd, writeBuf, 2);
             int unlinkRetVal = unlink("/tmp/danielle_kut.txt");
             int closeRetVal = close(fd);
-            if ((closeRetVal == -1) | (unlinkRetVal == -1))
+            if ((closeRetVal == FAILED) | (unlinkRetVal == FAILED) |
+					(writeVal == FAILED))
             {
                 return FAILED;
             }
