@@ -247,7 +247,9 @@ double osm_disk_time(unsigned int iterations)
 }
 
 /**
- *
+ * measures the times of all the functions in nano seconds and the ratio
+ * between all functions to the instruction function.
+ * @return the struct holding the values of the times of the functions
  */
 timeMeasurmentStructure measureTimes (unsigned int operation_iterations,
                                       unsigned int function_iterations,
