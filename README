@@ -11,7 +11,7 @@ None.
 
 ANSWERS:
 
-Q1:
+TASK 1:
 Run without arg:
 Tries to run the program normally, and reaches a problem when noticing that
 there was no file descriptor opened since there was no given argument and
@@ -95,7 +95,7 @@ Returns: void
 Description: terminates the proccess and all threads in it.
 
 
-Q2:
+TASK 2:
 The functions are written in a manner of measuring the times of certain
 operations over a loop of given iterations, averaging the time it took,
 taking in account the time in seconds and in
@@ -107,3 +107,19 @@ of the loop as in style of loop unrolling.
 All the other functions work in a similar manner with the exception of the
 disk operation, which opens a newly created file and closes it in
 each iteration.
+
+For the disk operations, in order for having an accurate measurement while
+using the flag O_DIRECT, we assign a msg buffer of size 512 bytes and copy the
+message that is to be written to the file to the msg buffer,
+then we create a file in the /tmp/
+directory with flags that say the following:
+create the file, truncate the file, open in write only, process in
+a synchronous way and access to the disk is directly done while writing.
+then in every iteration, we use the write system call to write the msg in the
+buffer to the file.
+after the iterations, we unlink the file and close it thus deleting the file
+from the directory. We checked this in strace to verify the amount of system
+calls done.
+
+We also used the -O0 flag in the makefile in order to suggest to the compiler
+not to optimize the code, for a more accurate examination.
